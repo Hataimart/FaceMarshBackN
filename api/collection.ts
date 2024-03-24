@@ -22,7 +22,7 @@ router.get("/top", (req,res)=>{
 
 //display all picture of the user
 router.get("/owner/:id", (req,res)=>{
-    console.log("owner");
+    // console.log("owner");
     
     let id = +req.params.id;
     let sql = 'select * from Picture where madeBy = ?'
