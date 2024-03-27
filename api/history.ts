@@ -7,13 +7,6 @@ import mysql from "mysql";
 export const router = express.Router();
 
 
-// router.post("/", (req, res) => {
-//   //request PicID and Point . Insert PID point and date
-//   let body = req.body;
-//   let sql = "SELECT * FROM History WHERE PID = ?";
-//   // sql = mysql.format(sql, [data.PID]);
-//   res.status(201).json({ Text: "Get in index.ts body: " + JSON.stringify(body) });
-// });
 
 // router.get("/", (req, res) => {
 //   conn.query('SELECT CURRENT_TIMESTAMP() as date', (err, result, fields) => {
@@ -27,7 +20,10 @@ export const router = express.Router();
 //SELECT DATE_FORMAT(NOW(), "%d-%m-%y") AS currentDate
 router.get("/", (req, res) => {
   // let sql = "SELECT DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 DAY), '%d-%m-%y') AS currentDate";
-  let sql = "select date from History";
+  // let sql = "select date from History";
+  // date = DATE_SUB(CURDATE(), INTERVAL 3 DAY)
+  
+  let sql = "SELECT * FROM History WHERE date = (SELECT MAX(DATE_SUB(date, INTERVAL 1 DAY)) FROM History)"
   
   conn.query(sql, (err, result, fields) => {
     if (err) {
@@ -35,7 +31,7 @@ router.get("/", (req, res) => {
       res.status(500).json({ error: 'An error occurred while fetching the date.' });
       return;
     }
-    const currentDate = result[0].currentDate;
+    // const currentDate = result[0].currentDate;
     // res.json({ thisday: currentDate });
     res.json(result);
   });
@@ -44,7 +40,7 @@ router.get("/", (req, res) => {
 router.post("/", (req, res) => {
   const data: PointPortRequest = req.body;
 
-  // let sql = "SELECT COUNT(*) AS count FROM History where PID = ? AND date = DATE_SUB(CURDATE(), INTERVAL 3 DAY) ";
+  // let sql = "SELECT COUNT(*) AS count FROM History where PID = ? AND date = DATE_SUB(CURDATE(), INTERVAL 1 DAY) ";
   let sql = "SELECT COUNT(*) AS count FROM History where PID = ? AND date = CURRENT_DATE";
 
   // let sql ="SELECT date FROM History"
@@ -57,7 +53,7 @@ router.post("/", (req, res) => {
       if (result[0].count === 0) {
         
         //if there is no data of today picture. insert new data for today
-        // sql = "INSERT INTO History(`PID`, `point`, `date`) VALUES (?,?,DATE_SUB(CURDATE(), INTERVAL 3 DAY))";
+        // sql = "INSERT INTO History(`PID`, `point`, `date`) VALUES (?,?,DATE_SUB(CURDATE(), INTERVAL 1 DAY))";
         sql = "INSERT INTO History(`PID`, `point`, `date`) VALUES (?,?,CURRENT_DATE)";
 
         sql = mysql.format(sql, [
@@ -73,7 +69,7 @@ router.post("/", (req, res) => {
       } 
       else {
         // update if there's a data of today picture.
-        // sql = "UPDATE `History` SET `point`= ? WHERE PID = ? AND date = DATE_SUB(CURDATE(), INTERVAL 3 DAY) ";
+        // sql = "UPDATE `History` SET `point`= ? WHERE PID = ? AND date = DATE_SUB(CURDATE(), INTERVAL 1 DAY) ";
         sql = "UPDATE `History` SET `point`= ? WHERE PID = ? AND date = CURRENT_DATE";
         sql = mysql.format(sql, [
           data.point,
