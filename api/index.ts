@@ -28,8 +28,8 @@ router.get("/", (req,res)=>{
 });
 
 
+
 router.put("/update", async (req,res)=>{
-    
     let data : UserPortRequest = req.body;
     // res.status(201).json({ Text: "Get in index.ts body: "+JSON.stringify(data)});
     //ข้อมูลต้นฉบับ
