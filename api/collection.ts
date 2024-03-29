@@ -13,7 +13,7 @@ router.get("/", (req, res) => {
     conn.query(sql, (err, result, fields) => {
         // RANK() OVER (ORDER BY score DESC) AS rank
         res.json(result);
-    })
+    })//
 });
 
 
