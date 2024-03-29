@@ -16,31 +16,10 @@ router.get("/", (req, res) => {
     })
 });
 
-// SELECT Picture.*,History.point,History.date,
-//     @rank1 := ROW_NUMBER() OVER(ORDER BY Picture.point DESC) AS ranking1,
-//     @rank2 := ROW_NUMBER() OVER(ORDER BY History.point DESC) AS ranking2
-//     FROM
-//         Picture
-//     JOIN History ON Picture.PID = History.PID
-//     WHERE
-//         (Picture.PID, History.date) IN (
-//             SELECT
-//                 PID,
-//                 MAX(DATE_SUB(date, INTERVAL 1 DAY))
-//             FROM
-//                 Histoey
-//             GROUP BY
-//                 PID
-//         )
-//     ORDER BY
-//         Picture.point DESC,
-//         History.point DESC
-//     LIMIT
-//         10;
-//เหมือนกันแต่เพิ่ม limit
+
 router.get("/top", (req, res) => {
     // let sql = "select * from Picture ORDER BY point DESC LIMIT 10";
-    let sql = "SELECT Picture.*,History.point,History.date,"
+    let sql = "SELECT Picture.*,History.point as Hpoint,History.date,"
     +"@rank1 := ROW_NUMBER() OVER(ORDER BY Picture.point DESC) AS ranking1,"
     +"@rank2 := ROW_NUMBER() OVER(ORDER BY History.point DESC) AS ranking2 "
     +"FROM Picture JOIN History ON Picture.PID = History.PID " 
@@ -146,7 +125,7 @@ router.get("/show/:pid", (req, res) => {
     })
 })
 
-//insert picture
+// insert picture
 router.post("/insert", (req, res) => {
     const data: PicturePortRequest = req.body;
 
@@ -160,12 +139,12 @@ router.post("/insert", (req, res) => {
         data.description,
         data.point
     ]);
-    sql2 = mysql.format(sql, [data.PID]);
+    sql2 = mysql.format(sql2, [data.PID]);
     conn.query(sql, (err, result) => {
         if (err) {
             res.status(400).json(err)
         } else {
-            sql2 = mysql.format(sql, [data.PID]);
+            sql2 = mysql.format(sql2, [data.PID]);
             conn.query(sql2, (err, result) => {
                 if (err) {
                     res.status(400).json(err)
@@ -178,8 +157,6 @@ router.post("/insert", (req, res) => {
                     }
                 }
             })
-
-
         }
     })
 });
@@ -188,10 +165,9 @@ router.post("/insert", (req, res) => {
 router.delete("/remove", (req, res) => {
     let PID = req.query.pid;
     let UID = req.query.uid;
-    // [ req.query.id, "%" + req.query.name + "%"],
-    let sql = "DELETE FROM PICTURE where PID = ?";
+    let sql = "DELETE FROM Picture where PID = ?";
     let sql2 = "UPDATE User SET limit_upload = limit_upload-1 WHERE UID = ?"
-    let sql3 = "DELETE FROM History where PID = ?"
+    // let sql3 = "DELETE FROM History where PID = ?"
     conn.query(sql, [PID], (err, result) => {
         if (err) {
             res.status(400).json(err)
@@ -200,14 +176,14 @@ router.delete("/remove", (req, res) => {
                 if (err) {
                     res.status(400).json(err)
                 } else {
-                    conn.query(sql3, [PID], (err, result) => {
-                        if (err) {
-                            res.status(400).json(err)
-                        }
-                        else {
+                    // conn.query(sql3, [PID], (err, result) => {
+                    //     if (err) {
+                    //         res.status(400).json(err)
+                    //     }
+                    //     else {
                             res.status(200).json(result)
-                        }
-                    })
+                    //     }
+                    // })
                 }
             })
 
